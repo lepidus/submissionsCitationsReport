@@ -1,0 +1,5 @@
+msgid "plugins.reports.submissionsCitationsReport.displayName"
+msgstr "Informe de Citación de Envíos"
+
+msgid "plugins.reports.submissionsCitationsReport.description"
+msgstr "Implementa un informe que contiene todas las presentaciones que tienen citas listadas públicamente"
