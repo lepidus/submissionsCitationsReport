@@ -2,7 +2,7 @@
 
 namespace APP\plugins\reports\submissionsCitationsReport\tests;
 
-use APP\server\Server;
+use APP\journal\Journal;
 use APP\submission\Submission;
 use APP\publication\Publication;
 use APP\author\Author;
@@ -30,9 +30,9 @@ class SubmissionRowBuilderTest extends TestCase
         $this->submission->setData('currentPublicationId', $this->publication->getId());
     }
 
-    private function createTestContext(): Server
+    private function createTestContext(): Journal
     {
-        $context = new Server();
+        $context = new Journal();
         $context->setAllData([
             'id' => 13,
             'urlPath' => 'publicknowledge'
