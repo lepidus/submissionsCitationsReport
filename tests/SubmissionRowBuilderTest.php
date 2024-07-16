@@ -2,6 +2,7 @@
 
 namespace APP\plugins\reports\submissionsCitationsReport\tests;
 
+use APP\server\Server;
 use APP\submission\Submission;
 use APP\publication\Publication;
 use APP\author\Author;
@@ -15,17 +16,29 @@ class SubmissionRowBuilderTest extends TestCase
     private $submission;
     private $publication;
     private $authors;
+    private $context;
     private $locale = 'en';
-    private $contextId = 13;
 
     public function setUp(): void
     {
+        $this->context = $this->createTestContext();
         $this->authors = $this->createTestAuthors();
         $this->submission = $this->createTestSubmission();
         $this->publication = $this->createTestPublication();
 
         $this->submission->setData('publications', [$this->publication]);
         $this->submission->setData('currentPublicationId', $this->publication->getId());
+    }
+
+    private function createTestContext(): Server
+    {
+        $context = new Server();
+        $context->setAllData([
+            'id' => 13,
+            'urlPath' => 'publicknowledge'
+        ]);
+
+        return $context;
     }
 
     private function createTestAuthors(): array
@@ -46,7 +59,7 @@ class SubmissionRowBuilderTest extends TestCase
         $submission = new Submission();
 
         $submission->setData('id', 1234);
-        $submission->setData('contextId', 1);
+        $submission->setData('contextId', $this->context->getId());
 
         return $submission;
     }
@@ -56,7 +69,7 @@ class SubmissionRowBuilderTest extends TestCase
         $publication = new Publication();
         $doiObject = Repo::doi()->newDataObject([
             'doi' => '10.666/949494',
-            'contextId' => $this->contextId
+            'contextId' => $this->context->getId()
         ]);
 
         $publication->setAllData([
@@ -84,13 +97,15 @@ class SubmissionRowBuilderTest extends TestCase
     public function testBuildSubmissionRow(): void
     {
         $rowBuilder = new SubmissionRowBuilder();
+        $submissionId = $this->submission->getId();
         $expectedRow = [
-            $this->submission->getId(),
+            $submissionId,
             $this->publication->getLocalizedFullTitle($this->locale),
             'Bernard Summer; Gillian Gilbert',
+            "https://pkp.sfu.ca/ops/index.php/publicknowledge/workflow/access/$submissionId",
             '10.666/949494'
         ];
 
-        $this->assertEquals($expectedRow, $rowBuilder->buildRow($this->submission));
+        $this->assertEquals($expectedRow, $rowBuilder->buildRow($this->context, $this->submission));
     }
 }
