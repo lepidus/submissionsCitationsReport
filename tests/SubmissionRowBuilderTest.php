@@ -98,6 +98,7 @@ class SubmissionRowBuilderTest extends TestCase
     {
         $rowBuilder = new SubmissionRowBuilder();
         $submissionId = $this->submission->getId();
+
         $expectedRow = [
             $submissionId,
             $this->publication->getLocalizedFullTitle($this->locale),
