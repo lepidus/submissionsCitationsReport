@@ -3,6 +3,7 @@
 namespace APP\plugins\reports\submissionsCitationsReport\classes;
 
 use APP\core\Application;
+use APP\plugins\reports\submissionsCitationsReport\classes\CitationsReportDAO;
 
 class SubmissionRowBuilder
 {
@@ -15,13 +16,15 @@ class SubmissionRowBuilder
         $authors = $this->getAuthorsString($publication);
         $url = $this->getSubmissionUrl($context, $submission);
         $doi = $publication->getDoi();
+        $isScieloJournal = $this->getSubmitterIsScieloJournal($submission);
 
         return [
             $submissionId,
             $title,
             $authors,
             $url,
-            $doi
+            $doi,
+            $isScieloJournal
         ];
     }
 
@@ -48,5 +51,17 @@ class SubmissionRowBuilder
             'access',
             $submission->getId()
         );
+    }
+
+    private function getSubmitterIsScieloJournal($submission): string
+    {
+        $citationsReportDao = new CitationsReportDAO();
+        $submitterId = $citationsReportDao->getIdOfSubmitterUser($submission->getId());
+
+        if (is_null($submitterId)) {
+            return __('common.no');
+        }
+
+        return $citationsReportDao->userIsScieloJournal($submitterId) ? __('common.yes') : __('common.no');
     }
 }

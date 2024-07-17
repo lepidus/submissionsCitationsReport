@@ -151,6 +151,7 @@ class SubmissionRowBuilderTest extends DatabaseTestCase
             'Bernard Summer; Gillian Gilbert',
             "https://pkp.sfu.ca/ops/index.php/publicknowledge/workflow/access/$submissionId",
             '10.666/949494',
+            __('common.no')
         ];
 
         $this->assertEquals($expectedRow, $rowBuilder->buildRow($context, $this->submission));
