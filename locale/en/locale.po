@@ -3,3 +3,6 @@ msgstr "Submissions Citations Report"
 
 msgid "plugins.reports.submissionsCitationsReport.description"
 msgstr "Implements a report containing all the submissions which have citations listed publicly"
+
+msgid "plugins.reports.submissionsCitationsReport.scieloJournal"
+msgstr "SciELO Journal"
