@@ -45,10 +45,12 @@ class SubmissionsCitationsReportTest extends TestCase
         $authors = $this->createTestAuthors();
 
         $publication = new Publication();
+        $publication->setData('id', 789);
         $publication->setData('title', 'Advancements in rocket science', $this->locale);
         $publication->setData('authors', $this->lazyCollectionFromAuthors($authors));
         $publication->setData('doiObject', $doiObject);
 
+        $submission->setData('currentPublicationId', $publication->getId());
         $submission->setData('publications', [$publication]);
         return $submission;
     }
