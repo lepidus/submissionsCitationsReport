@@ -2,18 +2,27 @@
 
 namespace APP\plugins\reports\submissionsCitationsReport\tests;
 
+use APP\submission\Submission;
+use APP\publication\Publication;
+use APP\author\Author;
+use Illuminate\Support\LazyCollection;
+use APP\facades\Repo;
 use PHPUnit\Framework\TestCase;
 use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionsCitationsReport;
 use APP\plugins\reports\submissionsCitationsReport\tests\CSVFileUtils;
 
 class SubmissionsCitationsReportTest extends TestCase
 {
+    private $contextId = 1;
+    private $submission;
+    private $locale = 'en';
     private $report;
     private $filePath = '/tmp/test_report.csv';
 
     public function setUp(): void
     {
-        $this->report = new SubmissionsCitationsReport([]);
+        $this->submission = $this->createTestSubmission();
+        $this->report = new SubmissionsCitationsReport($this->contextId, [$this->submission]);
     }
 
     public function tearDown(): void
@@ -21,6 +30,51 @@ class SubmissionsCitationsReportTest extends TestCase
         if (file_exists(($this->filePath))) {
             unlink($this->filePath);
         }
+    }
+
+    private function createTestSubmission(): Submission
+    {
+        $submission = new Submission();
+        $submission->setData('id', 1234);
+        $submission->setData('contextId', $this->contextId);
+
+        $doiObject = Repo::doi()->newDataObject([
+            'doi' => '10.666/949494',
+            'contextId' => $this->contextId
+        ]);
+        $authors = $this->createTestAuthors();
+
+        $publication = new Publication();
+        $publication->setData('title', 'Advancements in rocket science', $this->locale);
+        $publication->setData('authors', $this->lazyCollectionFromAuthors($authors));
+        $publication->setData('doiObject', $doiObject);
+
+        $submission->setData('publications', [$publication]);
+        return $submission;
+    }
+
+    private function createTestAuthors(): array
+    {
+        $author1 = new Author();
+        $author1->setData('givenName', 'Bernard');
+        $author1->setData('familyName', 'Summer');
+
+        $author2 = new Author();
+        $author2->setData('givenName', 'Gillian');
+        $author2->setData('familyName', 'Gilbert');
+
+        return [$author1, $author2];
+    }
+
+    private function lazyCollectionFromAuthors(array $authors): LazyCollection
+    {
+        $collectionAuthors = LazyCollection::make(function () use ($authors) {
+            foreach ($authors as $author) {
+                yield $author->getId() => $author;
+            }
+        });
+
+        return $collectionAuthors;
     }
 
     private function generateCSV(): void
@@ -48,8 +102,9 @@ class SubmissionsCitationsReportTest extends TestCase
         $csvFileUtils = new CSVFileUtils();
         $csvFileUtils->readUTF8Bytes($csvFile);
 
-        $firstLine = fgetcsv($csvFile);
-        $expectedLine = [
+        $firstRow = fgetcsv($csvFile);
+        fclose($csvFile);
+        $expectedRow = [
             __('common.id'),
             __('common.title'),
             __('submission.authors'),
@@ -57,8 +112,33 @@ class SubmissionsCitationsReportTest extends TestCase
             __('metadata.property.displayName.doi'),
             __('plugins.reports.submissionsCitationsReport.scieloJournal')
         ];
+
+        $this->assertEquals($expectedRow, $firstRow);
+    }
+
+    public function testGeneratedCsvHasSubmissionRow(): void
+    {
+        $this->generateCSV();
+        $csvFile = fopen($this->filePath, 'r');
+        $csvFileUtils = new CSVFileUtils();
+        $csvFileUtils->readUTF8Bytes($csvFile);
+
+        fgetcsv($csvFile);
+        $secondRow = fgetcsv($csvFile);
         fclose($csvFile);
 
-        $this->assertEquals($expectedLine, $firstLine);
+        $submissionId = $this->submission->getId();
+        $publication = $this->submission->getCurrentPublication();
+
+        $expectedRow = [
+            $submissionId,
+            $publication->getLocalizedFullTitle($this->locale),
+            'Bernard Summer; Gillian Gilbert',
+            "https://pkp.sfu.ca/ops/index.php/publicknowledge/workflow/access/$submissionId",
+            '10.666/949494',
+            __('common.no')
+        ];
+
+        $this->assertEquals($expectedRow, $secondRow);
     }
 }
