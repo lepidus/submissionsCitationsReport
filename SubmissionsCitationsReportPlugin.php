@@ -6,7 +6,7 @@ use PKP\plugins\ReportPlugin;
 use APP\core\Application;
 use PKP\plugins\Hook;
 
-class SubmissionsCitationsReport extends ReportPlugin
+class SubmissionsCitationsReportPlugin extends ReportPlugin
 {
     public function register($category, $path, $mainContextId = null): bool
     {
