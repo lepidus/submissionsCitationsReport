@@ -6,6 +6,8 @@ class CrossrefClient
 {
     private $guzzleClient;
 
+    public const CROSSREF_API_URL = 'https://api.crossref.org/works';
+
     public function __construct($guzzleClient = null)
     {
         if (!is_null($guzzleClient)) {
@@ -24,9 +26,10 @@ class CrossrefClient
             return 0;
         }
 
+        $requestUrl = htmlspecialchars(self::CROSSREF_API_URL . "?filter=doi:$doi");
         $response = $this->guzzleClient->request(
             'GET',
-            $crossrefUrl,
+            $requestUrl,
             [
                 'headers' => ['Accept' => 'application/json'],
             ]
