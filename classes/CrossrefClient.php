@@ -2,6 +2,8 @@
 
 namespace APP\plugins\reports\submissionsCitationsReport\classes;
 
+use GuzzleHttp\Exception\ClientException;
+
 class CrossrefClient
 {
     private $guzzleClient;
@@ -27,17 +29,28 @@ class CrossrefClient
         }
 
         $requestUrl = htmlspecialchars(self::CROSSREF_API_URL . "?filter=doi:$doi");
-        $response = $this->guzzleClient->request(
-            'GET',
-            $requestUrl,
-            [
-                'headers' => ['Accept' => 'application/json'],
-            ]
-        );
+
+        try {
+            $response = $this->guzzleClient->request(
+                'GET',
+                $requestUrl,
+                [
+                    'headers' => ['Accept' => 'application/json'],
+                ]
+            );
+        } catch (ClientException $exception) {
+            error_log("Error while trying to get submission citations count");
+            error_log($exception->getMessage());
+            return 0;
+        }
 
         $responseJson = json_decode($response->getBody(), true);
-        $citationsCount = $responseJson['message']['items'][0]['is-referenced-by-count'];
+        $items = $responseJson['message']['items'];
 
-        return $citationsCount;
+        if (empty($items)) {
+            return 0;
+        }
+
+        return ((int) $items[0]['is-referenced-by-count']);
     }
 }
