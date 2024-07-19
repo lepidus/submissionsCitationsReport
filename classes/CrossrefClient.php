@@ -2,6 +2,7 @@
 
 namespace APP\plugins\reports\submissionsCitationsReport\classes;
 
+use APP\core\Application;
 use GuzzleHttp\Exception\ClientException;
 
 class CrossrefClient
