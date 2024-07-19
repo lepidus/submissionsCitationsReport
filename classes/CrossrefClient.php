@@ -16,7 +16,7 @@ class CrossrefClient
         if (!is_null($guzzleClient)) {
             $this->guzzleClient = $guzzleClient;
         } else {
-            $guzzleClient = Application::get()->getHttpClient();
+            $this->guzzleClient = Application::get()->getHttpClient();
         }
     }
 
