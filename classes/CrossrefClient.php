@@ -3,6 +3,7 @@
 namespace APP\plugins\reports\submissionsCitationsReport\classes;
 
 use APP\core\Application;
+use GuzzleHttp\Promise;
 use GuzzleHttp\Exception\ClientException;
 
 class CrossrefClient
@@ -20,38 +21,49 @@ class CrossrefClient
         }
     }
 
-    public function getSubmissionCitationsCount($submission): int
+    public function getSubmissionsCitationsCount(array $submissions): array
     {
-        $publication = $submission->getCurrentPublication();
-        $doi = $publication->getDoi();
+        $promises = [];
+        $citationsCount = [];
 
-        if (is_null($doi)) {
-            return 0;
-        }
+        foreach ($submissions as $submission) {
+            $publication = $submission->getCurrentPublication();
+            $doi = $publication->getDoi();
 
-        $requestUrl = htmlspecialchars(self::CROSSREF_API_URL . "?filter=doi:$doi");
+            if (is_null($doi)) {
+                $citationsCount[$submission->getId()] = 0;
+                continue;
+            }
 
-        try {
-            $response = $this->guzzleClient->request(
+            $requestUrl = htmlspecialchars(self::CROSSREF_API_URL . "?filter=doi:$doi");
+            $promises[$submission->getId()] = $this->guzzleClient->requestAsync(
                 'GET',
                 $requestUrl,
                 [
                     'headers' => ['Accept' => 'application/json'],
                 ]
             );
-        } catch (ClientException $exception) {
-            error_log("Error while trying to get submission citations count");
-            error_log($exception->getMessage());
-            return 0;
         }
 
-        $responseJson = json_decode($response->getBody(), true);
-        $items = $responseJson['message']['items'];
+        $results = Promise\Utils::settle($promises)->wait();
 
-        if (empty($items)) {
-            return 0;
+        foreach ($results as $submissionId => $result) {
+            if ($result['state'] == 'rejected') {
+                $citationsCount[$submissionId] = 0;
+                continue;
+            }
+
+            $responseJson = json_decode($result['value']->getBody(), true);
+            $items = $responseJson['message']['items'];
+
+            if (empty($items)) {
+                $citationsCount[$submissionId] = 0;
+                continue;
+            }
+
+            $citationsCount[$submissionId] = ((int) $items[0]['is-referenced-by-count']);
         }
 
-        return ((int) $items[0]['is-referenced-by-count']);
+        return $citationsCount;
     }
 }

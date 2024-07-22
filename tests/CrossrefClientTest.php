@@ -16,46 +16,77 @@ class CrossrefClientTest extends TestCase
     private $mockGuzzleClient;
     private $crossrefClient;
     private $contextId = 1;
+    private $mapDoiCitationsCount = [
+        '10.666/949494' => 2,
+        null => 0,
+        '10.987/131415' => 3
+    ];
+    private $submissions;
 
     public function setUp(): void
     {
+        $this->submissions = $this->createTestSubmissions();
         $this->mockGuzzleClient = $this->createMockGuzzleClient();
         $this->crossrefClient = new CrossrefClient($this->mockGuzzleClient);
     }
 
     private function createMockGuzzleClient()
     {
-        $responseBody = [
-            'status' => 'ok',
-            'message' => [
-                'total-results' => 1,
-                'items' => [
-                    [
-                        'DOI' => '10.666/949494',
-                        'is-referenced-by-count' => 2
+        $mockResponses = [];
+
+        foreach ($this->mapDoiCitationsCount as $doi => $citationsCount) {
+            if (is_null($doi)) {
+                continue;
+            }
+
+            $responseBody = [
+                'status' => 'ok',
+                'message' => [
+                    'total-results' => 1,
+                    'items' => [
+                        [
+                            'DOI' => $doi,
+                            'is-referenced-by-count' => $citationsCount
+                        ]
                     ]
                 ]
-            ]
-        ];
-        $mockHandler = new MockHandler([
-            new Response(200, [], json_encode($responseBody))
-        ]);
+            ];
+            $mockResponses[] = new Response(200, [], json_encode($responseBody));
+        }
+
+        $mockHandler = new MockHandler($mockResponses);
         $guzzleClient = new Client(['handler' => $mockHandler]);
 
         return $guzzleClient;
     }
 
-    private function createTestSubmission(): Submission
+    private function createTestSubmissions(): array
     {
-        $doiObject = Repo::doi()->newDataObject([
-            'doi' => '10.666/949494',
-            'contextId' => $this->contextId
-        ]);
+        $submissions = [];
+        $submissionId = 10;
 
+        foreach ($this->mapDoiCitationsCount as $doi => $citationsCount) {
+            $submissions[] = $this->createSubmission($submissionId++, $doi);
+        }
+
+        return $submissions;
+    }
+
+    private function createSubmission(int $submissionId, ?string $doi): Submission
+    {
         $submission = new Submission();
+        $submission->setData('id', $submissionId);
         $publication = new Publication();
         $publication->setData('id', 789);
-        $publication->setData('doiObject', $doiObject);
+
+        if (!is_nulL($doi)) {
+            $doiObject = Repo::doi()->newDataObject([
+                'doi' => $doi,
+                'contextId' => $this->contextId
+            ]);
+
+            $publication->setData('doiObject', $doiObject);
+        }
 
         $submission->setData('currentPublicationId', $publication->getId());
         $submission->setData('publications', [$publication]);
@@ -64,10 +95,13 @@ class CrossrefClientTest extends TestCase
 
     public function testGetSubmissionCitationsCount()
     {
-        $submission = $this->createTestSubmission();
-        $submissionCitationsCount = $this->crossrefClient->getSubmissionCitationsCount($submission);
-        $expectedCitationsCount = 2;
+        $submissionsCitationsCount = $this->crossrefClient->getSubmissionsCitationsCount($this->submissions);
 
-        $this->assertEquals($expectedCitationsCount, $submissionCitationsCount);
+        foreach ($this->submissions as $submission) {
+            $doi = $submission->getCurrentPublication()->getDoi();
+            $submissionId = $submission->getId();
+
+            $this->assertEquals($this->mapDoiCitationsCount[$doi], $submissionsCitationsCount[$submissionId]);
+        }
     }
 }
