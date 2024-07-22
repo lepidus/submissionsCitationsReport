@@ -11,15 +11,20 @@ class SubmissionsCitationsReportBuilder
 {
     public function createReport($context): SubmissionsCitationsReport
     {
-        $submissions = Repo::submission()->getCollector()
+        $collector = Repo::submission()->getCollector();
+        $submissions = $collector
             ->filterByContextIds([$context->getId()])
             ->filterByStatus([Submission::STATUS_PUBLISHED])
-            ->getMany();
+            ->orderBy($collector::ORDERBY_DATE_SUBMITTED, $collector::ORDER_DIR_ASC)
+            ->getMany()
+            ->toArray();
 
         $crossrefClient = new CrossrefClient();
+        $submissionsCitationsCount = $crossrefClient->getSubmissionsCitationsCount($submissions);
+
         $submissionsWithCitations = [];
         foreach ($submissions as $submission) {
-            if ($crossrefClient->getSubmissionCitationsCount($submission) > 0) {
+            if ($submissionsCitationsCount[$submission->getId()] > 0) {
                 $submissionsWithCitations[] = $submission;
             }
         }
