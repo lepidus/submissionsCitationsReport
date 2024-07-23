@@ -3,7 +3,8 @@
 namespace APP\plugins\reports\submissionsCitationsReport\classes;
 
 use APP\core\Application;
-use GuzzleHttp\Promise;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Pool;
 use GuzzleHttp\Exception\ClientException;
 
 class CrossrefClient
@@ -23,7 +24,7 @@ class CrossrefClient
 
     public function getSubmissionsCitationsCount(array $submissions): array
     {
-        $promises = [];
+        $requests = [];
         $citationsCount = [];
 
         foreach ($submissions as $submission) {
@@ -36,7 +37,7 @@ class CrossrefClient
             }
 
             $requestUrl = htmlspecialchars(self::CROSSREF_API_URL . "?filter=doi:$doi");
-            $promises[$submission->getId()] = $this->guzzleClient->requestAsync(
+            $requests[$submission->getId()] = new Request(
                 'GET',
                 $requestUrl,
                 [
@@ -45,24 +46,25 @@ class CrossrefClient
             );
         }
 
-        $results = Promise\Utils::settle($promises)->wait();
+        $pool = new Pool($this->guzzleClient, $requests, [
+            'concurrency' => 5,
+            'fulfilled' => function ($response, $index) use (&$citationsCount) {
+                $responseJson = json_decode($response->getBody(), true);
+                $items = $responseJson['message']['items'];
 
-        foreach ($results as $submissionId => $result) {
-            if ($result['state'] == 'rejected') {
-                $citationsCount[$submissionId] = 0;
-                continue;
-            }
+                if (empty($items)) {
+                    $citationsCount[$index] = 0;
+                }
 
-            $responseJson = json_decode($result['value']->getBody(), true);
-            $items = $responseJson['message']['items'];
+                $citationsCount[$index] = (int) $items[0]['is-referenced-by-count'];
+            },
+            'rejected' => function ($reason, $index) use (&$citationsCount) {
+                $citationsCount[$index] = 0;
+            },
+        ]);
 
-            if (empty($items)) {
-                $citationsCount[$submissionId] = 0;
-                continue;
-            }
-
-            $citationsCount[$submissionId] = ((int) $items[0]['is-referenced-by-count']);
-        }
+        $promise = $pool->promise();
+        $promise->wait();
 
         return $citationsCount;
     }
