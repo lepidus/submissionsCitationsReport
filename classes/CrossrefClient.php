@@ -54,6 +54,7 @@ class CrossrefClient
 
                 if (empty($items)) {
                     $citationsCount[$index] = 0;
+                    return;
                 }
 
                 $citationsCount[$index] = (int) $items[0]['is-referenced-by-count'];
