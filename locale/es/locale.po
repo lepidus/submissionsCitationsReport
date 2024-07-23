@@ -3,3 +3,6 @@ msgstr "Informe de Citación de Envíos"
 
 msgid "plugins.reports.submissionsCitationsReport.description"
 msgstr "Implementa un informe que contiene todas las presentaciones que tienen citas listadas públicamente"
+
+msgid "plugins.reports.submissionsCitationsReport.scieloJournal"
+msgstr "Revista SciELO"
