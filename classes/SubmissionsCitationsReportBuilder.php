@@ -46,7 +46,7 @@ class SubmissionsCitationsReportBuilder
         return $submissionsWithCitations;
     }
 
-    private function retrieveSubmissionsWithCitations(int $contextId): array
+    public function retrieveSubmissionsWithCitations(int $contextId): array
     {
         $collector = Repo::submission()->getCollector();
         $submissions = $collector

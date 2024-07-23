@@ -20,6 +20,7 @@ class SubmissionsCitationsReportPlugin extends ReportPlugin
 
         if ($success && $this->getEnabled($mainContextId)) {
             $this->addLocaleData();
+            Hook::add('AcronPlugin::parseCronTab', [$this, 'addTasksToCrontab']);
         }
 
         return $success;
@@ -57,5 +58,12 @@ class SubmissionsCitationsReportPlugin extends ReportPlugin
         header('content-type: text/comma-separated-values');
         $acronym = PKPString::regexp_replace("/[^A-Za-z0-9 ]/", '', $context->getLocalizedAcronym());
         header('content-disposition: attachment; filename=submissions_citations_' . $acronym . '_' . date('YmdHis') . '.csv');
+    }
+
+    public function addTasksToCrontab($hookName, $params)
+    {
+        $taskFilesPath = &$params[0];
+        $taskFilesPath[] = $this->getPluginPath() . DIRECTORY_SEPARATOR . 'scheduledTasks.xml';
+        return false;
     }
 }
