@@ -30,8 +30,8 @@ class UpdateCitationsCache extends ScheduledTask
             );
 
             $cache->flush();
-            $reporBuilder = new SubmissionsCitationsReportBuilder();
-            $submissionsWithCitations = $reporBuilder->retrieveSubmissionsWithCitations($contextId);
+            $reportBuilder = new SubmissionsCitationsReportBuilder();
+            $submissionsWithCitations = $reportBuilder->retrieveSubmissionsWithCitations($contextId);
             $submissionsIds = array_keys($submissionsWithCitations);
             $cache->setEntireCache($submissionsIds);
         }
