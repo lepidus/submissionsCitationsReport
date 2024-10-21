@@ -13,10 +13,12 @@ use PKP\log\event\PKPSubmissionEventLogEntry;
 use Illuminate\Support\LazyCollection;
 use PKP\tests\DatabaseTestCase;
 use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionRowBuilder;
+use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionWithCitations;
 
 class SubmissionRowBuilderTest extends DatabaseTestCase
 {
     private $contextId = 1;
+    private $submissionWithCitations;
     private $submission;
     private $authors;
     private $locale = 'en';
@@ -27,6 +29,7 @@ class SubmissionRowBuilderTest extends DatabaseTestCase
 
         $this->submission = $this->createTestSubmission();
         $this->editPublication();
+        $this->submissionWithCitations = $this->createSubmissionWithCitations();
     }
 
     public function tearDown(): void
@@ -64,6 +67,16 @@ class SubmissionRowBuilderTest extends DatabaseTestCase
         $submissionId = Repo::submission()->add($submission, $publication, $context);
 
         return Repo::submission()->get($submissionId);
+    }
+
+    private function createSubmissionWithCitations(): SubmissionWithCitations
+    {
+        $submissionWithCitations = new SubmissionWithCitations();
+        $submissionWithCitations->setSubmissionId($this->submission->getId());
+        $submissionWithCitations->setSubmission($this->submission);
+        $submissionWithCitations->setCrossrefCitationsCount(51);
+
+        return $submissionWithCitations;
     }
 
     private function editPublication()
@@ -151,10 +164,11 @@ class SubmissionRowBuilderTest extends DatabaseTestCase
             'Bernard Summer; Gillian Gilbert',
             "https://pkp.sfu.ca/ops/index.php/publicknowledge/workflow/access/$submissionId",
             '10.666/949494',
-            __('common.no')
+            __('common.no'),
+            51
         ];
 
-        $this->assertEquals($expectedRow, $rowBuilder->buildRow($context, $this->submission));
+        $this->assertEquals($expectedRow, $rowBuilder->buildRow($context, $this->submissionWithCitations));
     }
 
     public function testBuildSubmissionRowWithScieloJournal(): void
@@ -176,9 +190,10 @@ class SubmissionRowBuilderTest extends DatabaseTestCase
             'Bernard Summer; Gillian Gilbert',
             "https://pkp.sfu.ca/ops/index.php/publicknowledge/workflow/access/$submissionId",
             '10.666/949494',
-            __('common.yes')
+            __('common.yes'),
+            51
         ];
 
-        $this->assertEquals($expectedRow, $rowBuilder->buildRow($context, $this->submission));
+        $this->assertEquals($expectedRow, $rowBuilder->buildRow($context, $this->submissionWithCitations));
     }
 }

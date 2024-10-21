@@ -3,6 +3,7 @@
 namespace APP\plugins\reports\submissionsCitationsReport\classes;
 
 use PKP\core\DataObject;
+use APP\submission\Submission;
 
 class SubmissionWithCitations extends DataObject
 {
@@ -14,6 +15,16 @@ class SubmissionWithCitations extends DataObject
     public function getSubmissionId(): int
     {
         return $this->getData('submissionId');
+    }
+
+    public function setSubmission(Submission $submission)
+    {
+        $this->setData('submission', $submission);
+    }
+
+    public function getSubmission(): Submission
+    {
+        return $this->getData('submission');
     }
 
     public function setCrossrefCitationsCount(int $crossrefCitationsCount)
