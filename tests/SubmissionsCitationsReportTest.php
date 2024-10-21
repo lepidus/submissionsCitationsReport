@@ -9,12 +9,14 @@ use Illuminate\Support\LazyCollection;
 use APP\facades\Repo;
 use PHPUnit\Framework\TestCase;
 use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionsCitationsReport;
+use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionWithCitations;
 use APP\plugins\reports\submissionsCitationsReport\tests\CSVFileUtils;
 
 class SubmissionsCitationsReportTest extends TestCase
 {
     private $contextId = 1;
     private $submission;
+    private $submissionWithCitations;
     private $locale = 'en';
     private $report;
     private $filePath = '/tmp/test_report.csv';
@@ -22,7 +24,8 @@ class SubmissionsCitationsReportTest extends TestCase
     public function setUp(): void
     {
         $this->submission = $this->createTestSubmission();
-        $this->report = new SubmissionsCitationsReport($this->contextId, [$this->submission]);
+        $this->submissionWithCitations = $this->createSubmissionWithCitations();
+        $this->report = new SubmissionsCitationsReport($this->contextId, [$this->submissionWithCitations]);
     }
 
     public function tearDown(): void
@@ -79,6 +82,16 @@ class SubmissionsCitationsReportTest extends TestCase
         return $collectionAuthors;
     }
 
+    private function createSubmissionWithCitations(): SubmissionWithCitations
+    {
+        $submissionWithCitations = new SubmissionWithCitations();
+        $submissionWithCitations->setSubmissionId($this->submission->getId());
+        $submissionWithCitations->setSubmission($this->submission);
+        $submissionWithCitations->setCrossrefCitationsCount(52);
+
+        return $submissionWithCitations;
+    }
+
     private function generateCSV(): void
     {
         $csvFile = fopen($this->filePath, 'wt');
@@ -112,7 +125,8 @@ class SubmissionsCitationsReportTest extends TestCase
             __('submission.authors'),
             __('common.url'),
             __('metadata.property.displayName.doi'),
-            __('plugins.reports.submissionsCitationsReport.scieloJournal')
+            __('plugins.reports.submissionsCitationsReport.scieloJournal'),
+            __('plugins.reports.submissionsCitationsReport.crossrefCitationsCount')
         ];
 
         $this->assertEquals($expectedRow, $firstRow);
@@ -138,7 +152,8 @@ class SubmissionsCitationsReportTest extends TestCase
             'Bernard Summer; Gillian Gilbert',
             "https://pkp.sfu.ca/ops/index.php/publicknowledge/workflow/access/$submissionId",
             '10.666/949494',
-            __('common.no')
+            __('common.no'),
+            52
         ];
 
         $this->assertEquals($expectedRow, $secondRow);

@@ -6,3 +6,6 @@ msgstr "Implements a report containing all the submissions which have citations 
 
 msgid "plugins.reports.submissionsCitationsReport.scieloJournal"
 msgstr "SciELO Journal"
+
+msgid "plugins.reports.submissionsCitationsReport.crossrefCitationsCount"
+msgstr "CrossRef citations count"
