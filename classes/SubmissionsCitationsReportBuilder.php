@@ -5,8 +5,9 @@ namespace APP\plugins\reports\submissionsCitationsReport\classes;
 use PKP\cache\CacheManager;
 use APP\facades\Repo;
 use APP\submission\Submission;
-use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionsCitationsReport;
 use APP\plugins\reports\submissionsCitationsReport\classes\CrossrefClient;
+use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionsCitationsReport;
+use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionWithCitations;
 
 class SubmissionsCitationsReportBuilder
 {
@@ -32,15 +33,16 @@ class SubmissionsCitationsReportBuilder
             $cache->flush();
 
             $submissionsWithCitations = $this->retrieveSubmissionsWithCitations($contextId);
-            $submissionsIds = array_keys($submissionsWithCitations);
-            $cache->setEntireCache($submissionsIds);
+            $cache->setEntireCache($submissionsWithCitations);
 
             return $submissionsWithCitations;
         }
 
-        $submissionsWithCitations = [];
-        foreach ($submissionsIds as $submissionId) {
-            $submissionsWithCitations[] = Repo::submission()->get($submissionId);
+        foreach ($submissionsWithCitations as $submissionWithCitations) {
+            $submission = Repo::submission()->get($submissionWithCitations->getSubmissionId());
+            $submissionWithCitations->setSubmission($submission);
+
+            $submissionsWithCitations[] = $submissionWithCitations;
         }
 
         return $submissionsWithCitations;
@@ -57,12 +59,18 @@ class SubmissionsCitationsReportBuilder
             ->toArray();
 
         $crossrefClient = new CrossrefClient();
-        $submissionsCitationsCount = $crossrefClient->getSubmissionsCitationsCount($submissions);
+        $submissionsCrossrefCitationsCount = $crossrefClient->getSubmissionsCitationsCount($submissions);
 
         $submissionsWithCitations = [];
         foreach ($submissions as $submission) {
-            if ($submissionsCitationsCount[$submission->getId()] > 0) {
-                $submissionsWithCitations[$submission->getId()] = $submission;
+            $crossrefCitationsCount = $submissionsCrossrefCitationsCount[$submission->getId()];
+
+            if ($crossrefCitationsCount > 0) {
+                $submissionWithCitations = new SubmissionWithCitations();
+                $submissionWithCitations->setSubmissionId($submission->getId());
+                $submissionWithCitations->setCrossrefCitationsCount($crossrefCitationsCount);
+
+                $submissionsWithCitations[$submission->getId()] = $submissionWithCitations;
             }
         }
 

@@ -37,4 +37,11 @@ class SubmissionWithCitations extends DataObject
         return $this->getData('crossrefCitationsCount');
     }
 
+    public static function __set_state($dump)
+    {
+        $obj = new SubmissionWithCitations();
+        $obj->setAllData($dump['_data']);
+
+        return $obj;
+    }
 }

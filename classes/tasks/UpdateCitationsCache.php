@@ -32,8 +32,7 @@ class UpdateCitationsCache extends ScheduledTask
             $cache->flush();
             $reportBuilder = new SubmissionsCitationsReportBuilder();
             $submissionsWithCitations = $reportBuilder->retrieveSubmissionsWithCitations($contextId);
-            $submissionsIds = array_keys($submissionsWithCitations);
-            $cache->setEntireCache($submissionsIds);
+            $cache->setEntireCache($submissionsWithCitations);
         }
 
         return true;
