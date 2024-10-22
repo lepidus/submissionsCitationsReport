@@ -28,21 +28,19 @@ class SubmissionsCitationsReportBuilder
             [$this, 'cacheDismiss']
         );
 
-        $submissionsIds = $cache->getContents();
-        if (is_null($submissionsIds)) {
+        $submissionsWithCitations = $cache->getContents();
+        if (is_null($submissionsWithCitations)) {
             $cache->flush();
 
             $submissionsWithCitations = $this->retrieveSubmissionsWithCitations($contextId);
             $cache->setEntireCache($submissionsWithCitations);
-
-            return $submissionsWithCitations;
         }
 
-        foreach ($submissionsWithCitations as $submissionWithCitations) {
-            $submission = Repo::submission()->get($submissionWithCitations->getSubmissionId());
+        foreach ($submissionsWithCitations as $submissionId => $submissionWithCitations) {
+            $submission = Repo::submission()->get($submissionId);
             $submissionWithCitations->setSubmission($submission);
 
-            $submissionsWithCitations[] = $submissionWithCitations;
+            $submissionsWithCitations[$submissionId] = $submissionWithCitations;
         }
 
         return $submissionsWithCitations;
