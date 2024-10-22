@@ -1,6 +1,6 @@
 <?php
 
-namespace APP\plugins\reports\submissionsCitationsReport\classes;
+namespace APP\plugins\reports\submissionsCitationsReport\classes\clients;
 
 use APP\core\Application;
 use GuzzleHttp\Psr7\Request;

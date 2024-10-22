@@ -5,7 +5,7 @@ namespace APP\plugins\reports\submissionsCitationsReport\classes;
 use PKP\cache\CacheManager;
 use APP\facades\Repo;
 use APP\submission\Submission;
-use APP\plugins\reports\submissionsCitationsReport\classes\CrossrefClient;
+use APP\plugins\reports\submissionsCitationsReport\classes\clients\CrossrefClient;
 use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionsCitationsReport;
 use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionWithCitations;
 
