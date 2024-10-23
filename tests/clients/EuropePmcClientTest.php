@@ -45,7 +45,7 @@ class EuropePmcClientTest extends TestCase
         $responses = [];
 
         foreach ($this->mapIdsAndSources as $doi => $idAndSource) {
-            if (is_null($doi)) {
+            if (empty($doi)) {
                 $statusCode = 200;
                 $responseBody = [
                     'errCode' => 404,
@@ -83,7 +83,8 @@ class EuropePmcClientTest extends TestCase
         $submissionId = 10;
 
         foreach ($this->mapIdsAndSources as $doi => $citationsCount) {
-            $submissions[] = $this->createSubmission($submissionId++, $doi);
+            $submissions[$submissionId] = $this->createSubmission($submissionId, $doi);
+            $submissionId++;
         }
 
         return $submissions;
@@ -114,11 +115,11 @@ class EuropePmcClientTest extends TestCase
     {
         $mockClient = $this->createMockClientForSearchQueries();
         $europePmcClient = new EuropePmcClient($mockClient);
-        $submissionsIdAndSource = $this->europePmcClient->getSubmissionsIdAndSource($this->submissions);
+        $submissionsIdAndSource = $europePmcClient->getSubmissionsIdAndSource($this->submissions);
 
-        foreach ($this->submissions as $submission) {
+        foreach ($this->submissions as $submissionId => $submission) {
             $doi = $submission->getCurrentPublication()->getDoi();
-            $submissionId = $submission->getId();
+            $expectedIdAndSource = $this->mapIdsAndSources[$doi];
 
             $this->assertEquals($expectedIdAndSource, $submissionsIdAndSource[$submissionId]);
         }

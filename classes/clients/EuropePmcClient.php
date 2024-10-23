@@ -36,7 +36,7 @@ class EuropePmcClient
                 continue;
             }
 
-            $requestUrl = htmlspecialchars(self::CROSSREF_API_URL . "/search?query=$doi&format=json");
+            $requestUrl = htmlspecialchars(self::EUROPE_PMC_API_URL . "/search?query=$doi&format=json");
             $requests[$submission->getId()] = new Request(
                 'GET',
                 $requestUrl,
@@ -50,9 +50,25 @@ class EuropePmcClient
             'concurrency' => 5,
             'fulfilled' => function ($response, $index) use (&$idsAndSources, $submissions) {
                 $responseJson = json_decode($response->getBody(), true);
-                $results = $responseJson['resultList']['result'];
+                $idAndSource = [];
 
-                // TODO
+                if (isset($responseJson['resultList'])) {
+                    $results = $responseJson['resultList']['result'];
+                    $submission = $submissions[$index];
+                    $submissionDoi = $submission->getCurrentPublication()->getDoi();
+
+                    foreach ($results as $result) {
+                        if ($result['doi'] == $submissionDoi) {
+                            $idAndSource = [
+                                'id' => $result['id'],
+                                'source' => $result['source']
+                            ];
+                            break;
+                        }
+                    }
+                }
+
+                $idsAndSources[$index] = $idAndSource;
             },
             'rejected' => function ($reason, $index) use (&$idsAndSources) {
                 $idsAndSources[$index] = [];
