@@ -35,7 +35,7 @@ class CrossrefClientTest extends TestCase
         $mockResponses = [];
 
         foreach ($this->mapDoiCitationsCount as $doi => $citationsCount) {
-            if (is_null($doi)) {
+            if (empty($doi)) {
                 continue;
             }
 

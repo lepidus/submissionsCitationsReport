@@ -31,7 +31,7 @@ class CrossrefClient
             $publication = $submission->getCurrentPublication();
             $doi = $publication->getDoi();
 
-            if (is_null($doi)) {
+            if (empty($doi)) {
                 $citationsCount[$submission->getId()] = 0;
                 continue;
             }

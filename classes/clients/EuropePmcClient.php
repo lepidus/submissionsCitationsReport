@@ -31,7 +31,7 @@ class EuropePmcClient
             $publication = $submission->getCurrentPublication();
             $doi = $publication->getDoi();
 
-            if (is_null($doi)) {
+            if (empty($doi)) {
                 $idsAndSources[$submission->getId()] = [];
                 continue;
             }
