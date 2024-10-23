@@ -80,4 +80,51 @@ class EuropePmcClient
 
         return $idsAndSources;
     }
+
+    public function getSubmissionsCitationsCount(array $submissionsIdsAndSources): array
+    {
+        $requests = [];
+        $submissionsCitationsCount = [];
+
+        foreach ($submissionsIdsAndSources as $submissionId => $idAndSource) {
+            if (empty($idAndSource)) {
+                $submissionsCitationsCount[$submissionId] = 0;
+                continue;
+            }
+
+            $id = $idAndSource['id'];
+            $source = $idAndSource['source'];
+
+            $requestUrl = htmlspecialchars(self::EUROPE_PMC_API_URL . "/$source/$id/citations?format=json");
+            $requests[$submissionId] = new Request(
+                'GET',
+                $requestUrl,
+                [
+                    'headers' => ['Accept' => 'application/json'],
+                ]
+            );
+        }
+
+        $pool = new Pool($this->guzzleClient, $requests, [
+            'concurrency' => 5,
+            'fulfilled' => function ($response, $index) use (&$submissionsCitationsCount) {
+                $responseJson = json_decode($response->getBody(), true);
+                $citationsCount = 0;
+
+                if (isset($responseJson['hitCount'])) {
+                    $citationsCount = $responseJson['hitCount'];
+                }
+
+                $submissionsCitationsCount[$index] = $citationsCount;
+            },
+            'rejected' => function ($reason, $index) use (&$idsAndSources) {
+                $submissionsCitationsCount[$index] = 0;
+            },
+        ]);
+
+        $promise = $pool->promise();
+        $promise->wait();
+
+        return $submissionsCitationsCount;
+    }
 }
