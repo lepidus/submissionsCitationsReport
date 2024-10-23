@@ -37,6 +37,16 @@ class SubmissionWithCitations extends DataObject
         return $this->getData('crossrefCitationsCount');
     }
 
+    public function setEuropePmcCitationsCount(int $europePmcCitationsCount)
+    {
+        $this->setData('europePmcCitationsCount', $europePmcCitationsCount);
+    }
+
+    public function getEuropePmcCitationsCount(): int
+    {
+        return $this->getData('europePmcCitationsCount');
+    }
+
     public static function __set_state($dump)
     {
         $obj = new SubmissionWithCitations();

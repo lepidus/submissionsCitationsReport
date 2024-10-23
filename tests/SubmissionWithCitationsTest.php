@@ -20,6 +20,7 @@ class SubmissionWithCitationsTest extends PKPTestCase
         $submissionWithCitations = new SubmissionWithCitations();
         $submissionWithCitations->setSubmissionId(7890);
         $submissionWithCitations->setCrossrefCitationsCount(49);
+        $submissionWithCitations->setEuropePmcCitationsCount(14);
 
         return $submissionWithCitations;
     }
@@ -28,7 +29,8 @@ class SubmissionWithCitationsTest extends PKPTestCase
     {
         $expectedData = [
             'submissionId' => 7890,
-            'crossrefCitationsCount' => 49
+            'crossrefCitationsCount' => 49,
+            'europePmcCitationsCount' => 14
         ];
         $this->assertEquals($expectedData, $this->submissionWithCitations->_data);
     }

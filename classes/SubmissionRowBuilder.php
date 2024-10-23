@@ -27,7 +27,8 @@ class SubmissionRowBuilder
             $url,
             $doi,
             $isScieloJournal,
-            $submissionWithCitations->getCrossrefCitationsCount()
+            $submissionWithCitations->getCrossrefCitationsCount(),
+            $submissionWithCitations->getEuropePmcCitationsCount()
         ];
     }
 

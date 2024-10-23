@@ -9,3 +9,6 @@ msgstr "SciELO Journal"
 
 msgid "plugins.reports.submissionsCitationsReport.crossrefCitationsCount"
 msgstr "CrossRef citations count"
+
+msgid "plugins.reports.submissionsCitationsReport.europePmcCitationsCount"
+msgstr "Europe PMC citations count"

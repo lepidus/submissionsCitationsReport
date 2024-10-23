@@ -8,4 +8,7 @@ msgid "plugins.reports.submissionsCitationsReport.scieloJournal"
 msgstr "Periódico SciELO"
 
 msgid "plugins.reports.submissionsCitationsReport.crossrefCitationsCount"
-msgstr "Contagem de citações CrossRef"
+msgstr "Número de citações em CrossRef"
+
+msgid "plugins.reports.submissionsCitationsReport.europePmcCitationsCount"
+msgstr "Número de citações em Europe PMC"

@@ -88,6 +88,7 @@ class SubmissionsCitationsReportTest extends TestCase
         $submissionWithCitations->setSubmissionId($this->submission->getId());
         $submissionWithCitations->setSubmission($this->submission);
         $submissionWithCitations->setCrossrefCitationsCount(52);
+        $submissionWithCitations->setEuropePmcCitationsCount(17);
 
         return $submissionWithCitations;
     }
@@ -126,7 +127,8 @@ class SubmissionsCitationsReportTest extends TestCase
             __('common.url'),
             __('metadata.property.displayName.doi'),
             __('plugins.reports.submissionsCitationsReport.scieloJournal'),
-            __('plugins.reports.submissionsCitationsReport.crossrefCitationsCount')
+            __('plugins.reports.submissionsCitationsReport.crossrefCitationsCount'),
+            __('plugins.reports.submissionsCitationsReport.europePmcCitationsCount')
         ];
 
         $this->assertEquals($expectedRow, $firstRow);
@@ -153,7 +155,8 @@ class SubmissionsCitationsReportTest extends TestCase
             "https://pkp.sfu.ca/ops/index.php/publicknowledge/workflow/access/$submissionId",
             '10.666/949494',
             __('common.no'),
-            52
+            52,
+            17
         ];
 
         $this->assertEquals($expectedRow, $secondRow);

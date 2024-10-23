@@ -75,6 +75,7 @@ class SubmissionRowBuilderTest extends DatabaseTestCase
         $submissionWithCitations->setSubmissionId($this->submission->getId());
         $submissionWithCitations->setSubmission($this->submission);
         $submissionWithCitations->setCrossrefCitationsCount(51);
+        $submissionWithCitations->setEuropePmcCitationsCount(16);
 
         return $submissionWithCitations;
     }
@@ -165,7 +166,8 @@ class SubmissionRowBuilderTest extends DatabaseTestCase
             "https://pkp.sfu.ca/ops/index.php/publicknowledge/workflow/access/$submissionId",
             '10.666/949494',
             __('common.no'),
-            51
+            51,
+            16
         ];
 
         $this->assertEquals($expectedRow, $rowBuilder->buildRow($context, $this->submissionWithCitations));
@@ -191,7 +193,8 @@ class SubmissionRowBuilderTest extends DatabaseTestCase
             "https://pkp.sfu.ca/ops/index.php/publicknowledge/workflow/access/$submissionId",
             '10.666/949494',
             __('common.yes'),
-            51
+            51,
+            16
         ];
 
         $this->assertEquals($expectedRow, $rowBuilder->buildRow($context, $this->submissionWithCitations));
