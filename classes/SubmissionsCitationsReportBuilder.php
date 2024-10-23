@@ -6,6 +6,7 @@ use PKP\cache\CacheManager;
 use APP\facades\Repo;
 use APP\submission\Submission;
 use APP\plugins\reports\submissionsCitationsReport\classes\clients\CrossrefClient;
+use APP\plugins\reports\submissionsCitationsReport\classes\clients\EuropePmcClient;
 use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionsCitationsReport;
 use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionWithCitations;
 
@@ -59,14 +60,19 @@ class SubmissionsCitationsReportBuilder
         $crossrefClient = new CrossrefClient();
         $submissionsCrossrefCitationsCount = $crossrefClient->getSubmissionsCitationsCount($submissions);
 
+        $europePmcClient = new EuropePmcClient();
+        $submissionsEuropePmcCitationsCount = $europePmcClient->getSubmissionsCitationsCount($submissions);
+
         $submissionsWithCitations = [];
         foreach ($submissions as $submission) {
             $crossrefCitationsCount = $submissionsCrossrefCitationsCount[$submission->getId()];
+            $europePmcCitationsCount = $submissionsEuropePmcCitationsCount[$submission->getId()];
 
-            if ($crossrefCitationsCount > 0) {
+            if ($crossrefCitationsCount > 0 || $europePmcCitationsCount > 0) {
                 $submissionWithCitations = new SubmissionWithCitations();
                 $submissionWithCitations->setSubmissionId($submission->getId());
                 $submissionWithCitations->setCrossrefCitationsCount($crossrefCitationsCount);
+                $submissionWithCitations->setEuropePmcCitationsCount($europePmcCitationsCount);
 
                 $submissionsWithCitations[$submission->getId()] = $submissionWithCitations;
             }

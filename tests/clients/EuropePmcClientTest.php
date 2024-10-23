@@ -140,7 +140,7 @@ class EuropePmcClientTest extends TestCase
         }
     }
 
-    public function testGetSubmissionsCitationsCount()
+    public function testGetCitationsCountByIdAndSource()
     {
         $mockClient = $this->createMockClientForCitationCount();
         $europePmcClient = new EuropePmcClient($mockClient);
@@ -154,7 +154,7 @@ class EuropePmcClientTest extends TestCase
             $submissionsIdsAndSources[$submissionId] = $idAndSource;
         }
 
-        $submissionsCitationsCount = $europePmcClient->getSubmissionsCitationsCount($submissionsIdsAndSources);
+        $submissionsCitationsCount = $europePmcClient->getCitationsCountByIdAndSource($submissionsIdsAndSources);
 
         foreach ($this->submissions as $submissionId => $submission) {
             $doi = $submission->getCurrentPublication()->getDoi();

@@ -22,6 +22,14 @@ class EuropePmcClient
         }
     }
 
+    public function getSubmissionsCitationsCount(array $submissions): array
+    {
+        $idsAndSources = $this->getSubmissionsIdAndSource($submissions);
+        $submissionsCitationsCount = $this->getCitationsCountByIdAndSource($idsAndSources);
+
+        return $submissionsCitationsCount;
+    }
+
     public function getSubmissionsIdAndSource(array $submissions): array
     {
         $requests = [];
@@ -36,29 +44,26 @@ class EuropePmcClient
                 continue;
             }
 
-            $requestUrl = htmlspecialchars(self::EUROPE_PMC_API_URL . "/search?query=$doi&format=json");
+            $requestUrl = htmlspecialchars(self::EUROPE_PMC_API_URL . "/search?query=DOI:$doi") . '&format=json';
             $requests[$submission->getId()] = new Request(
                 'GET',
-                $requestUrl,
-                [
-                    'headers' => ['Accept' => 'application/json'],
-                ]
+                $requestUrl
             );
         }
 
         $pool = new Pool($this->guzzleClient, $requests, [
             'concurrency' => 5,
             'fulfilled' => function ($response, $index) use (&$idsAndSources, $submissions) {
-                $responseJson = json_decode($response->getBody(), true);
+                $responseBody = json_decode($response->getBody(), true);
                 $idAndSource = [];
 
-                if (isset($responseJson['resultList'])) {
-                    $results = $responseJson['resultList']['result'];
+                if (isset($responseBody['resultList'])) {
+                    $results = $responseBody['resultList']['result'];
                     $submission = $submissions[$index];
-                    $submissionDoi = $submission->getCurrentPublication()->getDoi();
+                    $submissionDoi = strtolower($submission->getCurrentPublication()->getDoi());
 
                     foreach ($results as $result) {
-                        if ($result['doi'] == $submissionDoi) {
+                        if (strtolower($result['doi']) == $submissionDoi) {
                             $idAndSource = [
                                 'id' => $result['id'],
                                 'source' => $result['source']
@@ -81,7 +86,7 @@ class EuropePmcClient
         return $idsAndSources;
     }
 
-    public function getSubmissionsCitationsCount(array $submissionsIdsAndSources): array
+    public function getCitationsCountByIdAndSource(array $submissionsIdsAndSources): array
     {
         $requests = [];
         $submissionsCitationsCount = [];
@@ -98,10 +103,7 @@ class EuropePmcClient
             $requestUrl = htmlspecialchars(self::EUROPE_PMC_API_URL . "/$source/$id/citations?format=json");
             $requests[$submissionId] = new Request(
                 'GET',
-                $requestUrl,
-                [
-                    'headers' => ['Accept' => 'application/json'],
-                ]
+                $requestUrl
             );
         }
 
