@@ -8,19 +8,19 @@ use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionRowBuilder;
 class SubmissionsCitationsReport
 {
     private $contextId;
-    private $submissions;
+    private $submissionsWithCitations;
     private $UTF8_BOM;
 
-    public function __construct(int $contextId, array $submissions)
+    public function __construct(int $contextId, array $submissionsWithCitations)
     {
         $this->contextId = $contextId;
-        $this->submissions = $submissions;
+        $this->submissionsWithCitations = $submissionsWithCitations;
         $this->UTF8_BOM = chr(0xEF) . chr(0xBB) . chr(0xBF);
     }
 
-    public function getSubmissions(): array
+    public function getSubmissionsWithCitations(): array
     {
-        return $this->submissions;
+        return $this->submissionsWithCitations;
     }
 
     private function getHeaders(): array
@@ -31,7 +31,9 @@ class SubmissionsCitationsReport
             __('submission.authors'),
             __('common.url'),
             __('metadata.property.displayName.doi'),
-            __('plugins.reports.submissionsCitationsReport.scieloJournal')
+            __('plugins.reports.submissionsCitationsReport.scieloJournal'),
+            __('plugins.reports.submissionsCitationsReport.crossrefCitationsCount'),
+            __('plugins.reports.submissionsCitationsReport.europePmcCitationsCount')
         ];
     }
 
@@ -43,8 +45,8 @@ class SubmissionsCitationsReport
         fprintf($fileDescriptor, $this->UTF8_BOM);
         fputcsv($fileDescriptor, $this->getHeaders());
 
-        foreach ($this->submissions as $submission) {
-            fputcsv($fileDescriptor, $submissionRowBuilder->buildRow($context, $submission));
+        foreach ($this->submissionsWithCitations as $submissionWithCitations) {
+            fputcsv($fileDescriptor, $submissionRowBuilder->buildRow($context, $submissionWithCitations));
         }
     }
 }

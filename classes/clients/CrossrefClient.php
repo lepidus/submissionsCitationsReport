@@ -1,6 +1,6 @@
 <?php
 
-namespace APP\plugins\reports\submissionsCitationsReport\classes;
+namespace APP\plugins\reports\submissionsCitationsReport\classes\clients;
 
 use APP\core\Application;
 use GuzzleHttp\Psr7\Request;
@@ -31,7 +31,7 @@ class CrossrefClient
             $publication = $submission->getCurrentPublication();
             $doi = $publication->getDoi();
 
-            if (is_null($doi)) {
+            if (empty($doi)) {
                 $citationsCount[$submission->getId()] = 0;
                 continue;
             }

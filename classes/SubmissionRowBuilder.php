@@ -3,12 +3,14 @@
 namespace APP\plugins\reports\submissionsCitationsReport\classes;
 
 use APP\core\Application;
+use APP\facades\Repo;
 use APP\plugins\reports\submissionsCitationsReport\classes\CitationsReportDAO;
 
 class SubmissionRowBuilder
 {
-    public function buildRow($context, $submission): array
+    public function buildRow($context, $submissionWithCitations): array
     {
+        $submission = $submissionWithCitations->getSubmission();
         $publication = $submission->getCurrentPublication();
 
         $submissionId = $submission->getId();
@@ -24,7 +26,9 @@ class SubmissionRowBuilder
             $authors,
             $url,
             $doi,
-            $isScieloJournal
+            $isScieloJournal,
+            $submissionWithCitations->getCrossrefCitationsCount(),
+            $submissionWithCitations->getEuropePmcCitationsCount()
         ];
     }
 

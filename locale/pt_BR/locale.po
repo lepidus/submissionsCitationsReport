@@ -6,3 +6,9 @@ msgstr "Implementa um relatório contendo todos as submissões que têm citaçõ
 
 msgid "plugins.reports.submissionsCitationsReport.scieloJournal"
 msgstr "Periódico SciELO"
+
+msgid "plugins.reports.submissionsCitationsReport.crossrefCitationsCount"
+msgstr "Número de citações em CrossRef"
+
+msgid "plugins.reports.submissionsCitationsReport.europePmcCitationsCount"
+msgstr "Número de citações em Europe PMC"

@@ -9,7 +9,7 @@ use GuzzleHttp\Psr7\Response;
 use APP\submission\Submission;
 use APP\publication\Publication;
 use APP\facades\Repo;
-use APP\plugins\reports\submissionsCitationsReport\classes\CrossrefClient;
+use APP\plugins\reports\submissionsCitationsReport\classes\clients\CrossrefClient;
 
 class CrossrefClientTest extends TestCase
 {
@@ -35,7 +35,7 @@ class CrossrefClientTest extends TestCase
         $mockResponses = [];
 
         foreach ($this->mapDoiCitationsCount as $doi => $citationsCount) {
-            if (is_null($doi)) {
+            if (empty($doi)) {
                 continue;
             }
 

@@ -6,3 +6,9 @@ msgstr "Implementa un informe que contiene todas las presentaciones que tienen c
 
 msgid "plugins.reports.submissionsCitationsReport.scieloJournal"
 msgstr "Revista SciELO"
+
+msgid "plugins.reports.submissionsCitationsReport.crossrefCitationsCount"
+msgstr "Número de citas en CrossRef"
+
+msgid "plugins.reports.submissionsCitationsReport.europePmcCitationsCount"
+msgstr "Número de citas en Europe PMC"

@@ -5,8 +5,10 @@ namespace APP\plugins\reports\submissionsCitationsReport\classes;
 use PKP\cache\CacheManager;
 use APP\facades\Repo;
 use APP\submission\Submission;
+use APP\plugins\reports\submissionsCitationsReport\classes\clients\CrossrefClient;
+use APP\plugins\reports\submissionsCitationsReport\classes\clients\EuropePmcClient;
 use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionsCitationsReport;
-use APP\plugins\reports\submissionsCitationsReport\classes\CrossrefClient;
+use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionWithCitations;
 
 class SubmissionsCitationsReportBuilder
 {
@@ -27,20 +29,19 @@ class SubmissionsCitationsReportBuilder
             [$this, 'cacheDismiss']
         );
 
-        $submissionsIds = $cache->getContents();
-        if (is_null($submissionsIds)) {
+        $submissionsWithCitations = $cache->getContents();
+        if (is_null($submissionsWithCitations)) {
             $cache->flush();
 
             $submissionsWithCitations = $this->retrieveSubmissionsWithCitations($contextId);
-            $submissionsIds = array_keys($submissionsWithCitations);
-            $cache->setEntireCache($submissionsIds);
-
-            return $submissionsWithCitations;
+            $cache->setEntireCache($submissionsWithCitations);
         }
 
-        $submissionsWithCitations = [];
-        foreach ($submissionsIds as $submissionId) {
-            $submissionsWithCitations[] = Repo::submission()->get($submissionId);
+        foreach ($submissionsWithCitations as $submissionId => $submissionWithCitations) {
+            $submission = Repo::submission()->get($submissionId);
+            $submissionWithCitations->setSubmission($submission);
+
+            $submissionsWithCitations[$submissionId] = $submissionWithCitations;
         }
 
         return $submissionsWithCitations;
@@ -57,12 +58,23 @@ class SubmissionsCitationsReportBuilder
             ->toArray();
 
         $crossrefClient = new CrossrefClient();
-        $submissionsCitationsCount = $crossrefClient->getSubmissionsCitationsCount($submissions);
+        $submissionsCrossrefCitationsCount = $crossrefClient->getSubmissionsCitationsCount($submissions);
+
+        $europePmcClient = new EuropePmcClient();
+        $submissionsEuropePmcCitationsCount = $europePmcClient->getSubmissionsCitationsCount($submissions);
 
         $submissionsWithCitations = [];
         foreach ($submissions as $submission) {
-            if ($submissionsCitationsCount[$submission->getId()] > 0) {
-                $submissionsWithCitations[$submission->getId()] = $submission;
+            $crossrefCitationsCount = $submissionsCrossrefCitationsCount[$submission->getId()];
+            $europePmcCitationsCount = $submissionsEuropePmcCitationsCount[$submission->getId()];
+
+            if ($crossrefCitationsCount > 0 || $europePmcCitationsCount > 0) {
+                $submissionWithCitations = new SubmissionWithCitations();
+                $submissionWithCitations->setSubmissionId($submission->getId());
+                $submissionWithCitations->setCrossrefCitationsCount($crossrefCitationsCount);
+                $submissionWithCitations->setEuropePmcCitationsCount($europePmcCitationsCount);
+
+                $submissionsWithCitations[$submission->getId()] = $submissionWithCitations;
             }
         }
 
