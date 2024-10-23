@@ -45,9 +45,13 @@ class EuropePmcClientTest extends TestCase
         $responses = [];
 
         foreach ($this->mapDoiToData as $doi => $data) {
-            if (!empty($doi)) {
-                $statusCode = 200;
-                $responseBody = [
+            if (empty($doi)) {
+                continue;
+            }
+
+            $responses[] = [
+                'code' => 200,
+                'body' => [
                     'version' => '6.9',
                     'hitCount' => 2,
                     'resultList' => [
@@ -59,12 +63,29 @@ class EuropePmcClientTest extends TestCase
                             ]
                         ]
                     ]
-                ];
-                $responses[] = [
-                    'code' => $statusCode,
-                    'body' => $responseBody
-                ];
+                ]
+            ];
+        }
+
+        return $this->createMockGuzzleClient($responses);
+    }
+
+    private function createMockClientForCitationCount()
+    {
+        $responses = [];
+
+        foreach ($this->mapDoiToData as $doi => $data) {
+            if (empty($doi)) {
+                continue;
             }
+
+            $responses[] = [
+                'code' => 200,
+                'body' => [
+                    'version' => '6.9',
+                    'hitCount' => $data['citations'],
+                ]
+            ];
         }
 
         return $this->createMockGuzzleClient($responses);
@@ -90,7 +111,7 @@ class EuropePmcClientTest extends TestCase
         $publication = new Publication();
         $publication->setData('id', 789);
 
-        if (!is_nulL($doi)) {
+        if (!empty($doi)) {
             $doiObject = Repo::doi()->newDataObject([
                 'doi' => $doi,
                 'contextId' => $this->contextId
@@ -116,6 +137,30 @@ class EuropePmcClientTest extends TestCase
             unset($expectedIdAndSource['citations']);
 
             $this->assertEquals($expectedIdAndSource, $submissionsIdAndSource[$submissionId]);
+        }
+    }
+
+    public function testGetSubmissionsCitationsCount()
+    {
+        $mockClient = $this->createMockClientForCitationCount();
+        $europePmcClient = new EuropePmcClient($mockClient);
+
+        $submissionsIdsAndSources = [];
+        foreach ($this->submissions as $submissionId => $submission) {
+            $doi = $submission->getCurrentPublication()->getDoi();
+            $idAndSource = $this->mapDoiToData[$doi];
+            unset($idAndSource['citations']);
+
+            $submissionsIdsAndSources[$submissionId] = $idAndSource;
+        }
+
+        $submissionsCitationsCount = $europePmcClient->getSubmissionsCitationsCount($submissionsIdsAndSources);
+
+        foreach ($this->submissions as $submissionId => $submission) {
+            $doi = $submission->getCurrentPublication()->getDoi();
+            $expectedCitationsCount = $this->mapDoiToData[$doi]['citations'];
+
+            $this->assertEquals($expectedCitationsCount, $submissionsCitationsCount[$submissionId]);
         }
     }
 }
