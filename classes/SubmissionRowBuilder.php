@@ -28,7 +28,8 @@ class SubmissionRowBuilder
             $doi,
             $isScieloJournal,
             $submissionWithCitations->getCrossrefCitationsCount(),
-            $submissionWithCitations->getEuropePmcCitationsCount()
+            $submissionWithCitations->getEuropePmcCitationsCount(),
+            $submissionWithCitations->getOpenAlexCitationsCount()
         ];
     }
 

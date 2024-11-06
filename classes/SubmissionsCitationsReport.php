@@ -33,7 +33,8 @@ class SubmissionsCitationsReport
             __('metadata.property.displayName.doi'),
             __('plugins.reports.submissionsCitationsReport.scieloJournal'),
             __('plugins.reports.submissionsCitationsReport.crossrefCitationsCount'),
-            __('plugins.reports.submissionsCitationsReport.europePmcCitationsCount')
+            __('plugins.reports.submissionsCitationsReport.europePmcCitationsCount'),
+            __('plugins.reports.submissionsCitationsReport.openAlexCitationsCount')
         ];
     }
 

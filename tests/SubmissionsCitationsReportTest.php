@@ -89,6 +89,7 @@ class SubmissionsCitationsReportTest extends TestCase
         $submissionWithCitations->setSubmission($this->submission);
         $submissionWithCitations->setCrossrefCitationsCount(52);
         $submissionWithCitations->setEuropePmcCitationsCount(17);
+        $submissionWithCitations->setOpenAlexCitationsCount(24);
 
         return $submissionWithCitations;
     }
@@ -128,7 +129,8 @@ class SubmissionsCitationsReportTest extends TestCase
             __('metadata.property.displayName.doi'),
             __('plugins.reports.submissionsCitationsReport.scieloJournal'),
             __('plugins.reports.submissionsCitationsReport.crossrefCitationsCount'),
-            __('plugins.reports.submissionsCitationsReport.europePmcCitationsCount')
+            __('plugins.reports.submissionsCitationsReport.europePmcCitationsCount'),
+            __('plugins.reports.submissionsCitationsReport.openAlexCitationsCount')
         ];
 
         $this->assertEquals($expectedRow, $firstRow);
@@ -156,7 +158,8 @@ class SubmissionsCitationsReportTest extends TestCase
             '10.666/949494',
             __('common.no'),
             52,
-            17
+            17,
+            24
         ];
 
         $this->assertEquals($expectedRow, $secondRow);

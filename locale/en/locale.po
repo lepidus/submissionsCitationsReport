@@ -12,3 +12,6 @@ msgstr "CrossRef citations count"
 
 msgid "plugins.reports.submissionsCitationsReport.europePmcCitationsCount"
 msgstr "Europe PMC citations count"
+
+msgid "plugins.reports.submissionsCitationsReport.openAlexCitationsCount"
+msgstr "OpenAlex citations count"

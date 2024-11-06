@@ -76,6 +76,7 @@ class SubmissionRowBuilderTest extends DatabaseTestCase
         $submissionWithCitations->setSubmission($this->submission);
         $submissionWithCitations->setCrossrefCitationsCount(51);
         $submissionWithCitations->setEuropePmcCitationsCount(16);
+        $submissionWithCitations->setOpenAlexCitationsCount(23);
 
         return $submissionWithCitations;
     }
@@ -167,7 +168,8 @@ class SubmissionRowBuilderTest extends DatabaseTestCase
             '10.666/949494',
             __('common.no'),
             51,
-            16
+            16,
+            23
         ];
 
         $this->assertEquals($expectedRow, $rowBuilder->buildRow($context, $this->submissionWithCitations));
@@ -194,7 +196,8 @@ class SubmissionRowBuilderTest extends DatabaseTestCase
             '10.666/949494',
             __('common.yes'),
             51,
-            16
+            16,
+            23
         ];
 
         $this->assertEquals($expectedRow, $rowBuilder->buildRow($context, $this->submissionWithCitations));

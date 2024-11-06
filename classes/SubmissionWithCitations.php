@@ -47,6 +47,16 @@ class SubmissionWithCitations extends DataObject
         return $this->getData('europePmcCitationsCount');
     }
 
+    public function setOpenAlexCitationsCount(int $openAlexCitationsCount)
+    {
+        $this->setData('openAlexCitationsCount', $openAlexCitationsCount);
+    }
+
+    public function getOpenAlexCitationsCount(): int
+    {
+        return $this->getData('openAlexCitationsCount');
+    }
+
     public static function __set_state($dump)
     {
         $obj = new SubmissionWithCitations();
