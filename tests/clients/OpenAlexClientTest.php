@@ -27,7 +27,7 @@ class OpenAlexClientTest extends TestCase
     {
         $this->submissions = $this->createTestSubmissions();
         $this->mockGuzzleClient = $this->createMockGuzzleClient();
-        $this->crossrefClient = new CrossrefClient($this->mockGuzzleClient);
+        $this->crossrefClient = new OpenAlexClient($this->mockGuzzleClient);
     }
 
     private function createMockGuzzleClient()
