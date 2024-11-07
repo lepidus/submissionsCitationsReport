@@ -31,7 +31,7 @@ class OpenAlexClient
             $publication = $submission->getCurrentPublication();
             $doiObject = $publication->getData('doiObject');
 
-            if (empty($doiObject)) {
+            if (empty($doiObject->getDoi())) {
                 $citationsCount[$submission->getId()] = 0;
                 continue;
             }
