@@ -2,6 +2,8 @@
 This plugin generates a CSV report containing all submissions that have at least one citation listed in the following services:
 
 - CrossRef
+- Europe PMC
+- OpenAlex
 
 For each submission, the following submission metadata is displayed in the report:
 
