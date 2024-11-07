@@ -29,14 +29,15 @@ class OpenAlexClient
 
         foreach ($submissions as $submission) {
             $publication = $submission->getCurrentPublication();
-            $doi = $publication->getDoi();
+            $doiObject = $publication->getData('doiObject');
 
-            if (empty($doi)) {
+            if (empty($doiObject)) {
                 $citationsCount[$submission->getId()] = 0;
                 continue;
             }
 
-            $requestUrl = htmlspecialchars(self::OPEN_ALEX_API_URL . "?filter=doi:$doi");
+            $doiResolvingUrl = $doiObject->getResolvingUrl();
+            $requestUrl = htmlspecialchars(self::OPEN_ALEX_API_URL . "/$doiResolvingUrl?select=doi,cited_by_count");
             $requests[$submission->getId()] = new Request(
                 'GET',
                 $requestUrl,
