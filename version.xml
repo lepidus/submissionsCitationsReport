@@ -13,6 +13,6 @@
 <version>
 	<application>submissionsCitationsReport</application>
 	<type>plugins.reports</type>
-	<release>1.1.0.0</release>
-	<date>2024-10-23</date>
+	<release>1.2.0.0</release>
+	<date>2024-11-07</date>
 </version>

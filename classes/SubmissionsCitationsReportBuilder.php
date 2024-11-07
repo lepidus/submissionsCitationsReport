@@ -7,6 +7,7 @@ use APP\facades\Repo;
 use APP\submission\Submission;
 use APP\plugins\reports\submissionsCitationsReport\classes\clients\CrossrefClient;
 use APP\plugins\reports\submissionsCitationsReport\classes\clients\EuropePmcClient;
+use APP\plugins\reports\submissionsCitationsReport\classes\clients\OpenAlexClient;
 use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionsCitationsReport;
 use APP\plugins\reports\submissionsCitationsReport\classes\SubmissionWithCitations;
 
@@ -63,16 +64,25 @@ class SubmissionsCitationsReportBuilder
         $europePmcClient = new EuropePmcClient();
         $submissionsEuropePmcCitationsCount = $europePmcClient->getSubmissionsCitationsCount($submissions);
 
+        $openAlexClient = new OpenAlexClient();
+        $submissionsOpenAlexCitationsCount = $openAlexClient->getSubmissionsCitationsCount($submissions);
+
         $submissionsWithCitations = [];
         foreach ($submissions as $submission) {
             $crossrefCitationsCount = $submissionsCrossrefCitationsCount[$submission->getId()];
             $europePmcCitationsCount = $submissionsEuropePmcCitationsCount[$submission->getId()];
+            $openAlexCitationsCount = $submissionsOpenAlexCitationsCount[$submission->getId()];
 
-            if ($crossrefCitationsCount > 0 || $europePmcCitationsCount > 0) {
+            if (
+                $crossrefCitationsCount > 0
+                || $europePmcCitationsCount > 0
+                || $openAlexCitationsCount > 0
+            ) {
                 $submissionWithCitations = new SubmissionWithCitations();
                 $submissionWithCitations->setSubmissionId($submission->getId());
                 $submissionWithCitations->setCrossrefCitationsCount($crossrefCitationsCount);
                 $submissionWithCitations->setEuropePmcCitationsCount($europePmcCitationsCount);
+                $submissionWithCitations->setOpenAlexCitationsCount($openAlexCitationsCount);
 
                 $submissionsWithCitations[$submission->getId()] = $submissionWithCitations;
             }
